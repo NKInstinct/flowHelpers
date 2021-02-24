@@ -1,0 +1,28 @@
+Package: flowHelpers
+Title: Personal Helper Functions for Cytometry Analysis
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Andrew",
+           family = "Wight",
+           role = c("aut", "cre"),
+           email = "andrew.wight10@gmail.com",
+           comment = c(ORCID = "https://orcid.org/0000-0003-3116-8722"))
+Description: Contains helper functions for importing and working with flow 
+    cytometry data in R. Highlights include gs_create, which creates a 
+    gatingset from a list of fortessa-exported fcs files (might work with 
+    other cytometers too but I don't know) and gs_pregate which exports 
+    gated subpopulations based only on an input gatingset object and the 
+    gating strategy to use.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    flowCore,
+    flowWorkspace,
+    ncdfFlow,
+    readr
