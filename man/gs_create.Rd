@@ -61,9 +61,9 @@ gs <- gs_create(FCSDirectory = path_to_fcs,
 pattern = ".fcs$",
 recursive = FALSE,
 ncdf = FALSE,
-comp = FALSE,
+comp = "acquisition",
 transform = "biex",
-linearChannels = )
+linearChannels = 6)
 
 
 }

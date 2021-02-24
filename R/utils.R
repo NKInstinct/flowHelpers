@@ -32,10 +32,10 @@ applyComp <- function(fs, comp){
   if(comp == "acquisition"){
     compObj <- flowCore::spillover(fs[[1]])
     compObj <- compObj[[1]]
-  } else if(str_detect(comp, ".csv$")){
-    comp.mat <- readr::read_csv(comp) %>%
-      tibble::column_to_rownames(var = "X1") %>%
-      as.matrix()
+  } else if(stringr::str_detect(comp, ".csv$")){
+    comp.mat <- readr::read_csv(comp)
+    comp.mat <- tibble::column_to_rownames(comp.mat, var = "X1")
+    comp.mat <- as.matrix(comp.mat)
     compObj <- flowCore::compensation(comp.mat)
   } else{
     stop("If not FALSE, 'comp' must equal 'acquisition' or be a path to
@@ -60,7 +60,7 @@ getLinearChannels <- function(gs, linearChannels){
   return(chnls)
 }
 
-applyTransform <- function(gs, linearChannels, transform){
+applyTransform <- function(gs, linearChannels, transform, arcsinh_coeff){
 
   chnls <- getLinearChannels(gs, linearChannels)
 

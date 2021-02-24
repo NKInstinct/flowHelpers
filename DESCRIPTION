@@ -25,4 +25,8 @@ Imports:
     flowCore,
     flowWorkspace,
     ncdfFlow,
-    readr
+    readr,
+    dplyr,
+    stringr,
+    ggcyto,
+    tibble

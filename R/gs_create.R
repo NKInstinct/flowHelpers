@@ -36,9 +36,9 @@
 #' pattern = ".fcs$",
 #' recursive = FALSE,
 #' ncdf = FALSE,
-#' comp = FALSE,
+#' comp = "acquisition",
 #' transform = "biex",
-#' linearChannels = )
+#' linearChannels = 6)
 #'
 #'
 #' @export
@@ -67,7 +67,7 @@ gs_create <-  function(FCSDirectory,
   # Transform fluorescent channels ----------------------------------------
 
   if(transform != FALSE){
-    transList <- applyTransform(gs, linearChannels, transform)
+    transList <- applyTransform(gs, linearChannels, transform, arcsinh_coeff)
     gs <- flowWorkspace::transform(gs, transList)
   }
 

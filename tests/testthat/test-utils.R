@@ -1,17 +1,58 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+path_to_data <- system.file("extdata", package = "flowHelpers")
+
+test_that("fcs files return correct flowSet classes", {
+  expect_s4_class(readFS(FCSDirectory = path_to_data,
+                         pattern = ".fcs$",
+                         recursive = FALSE,
+                         ncdf = FALSE),
+                  "flowSet")
+  expect_s4_class(readFS(FCSDirectory = path_to_data,
+                         pattern = ".fcs$",
+                         recursive = FALSE,
+                         ncdf = TRUE),
+                  "ncdfFlowSet")
 })
 
-# Tests for readFS: if given a directory with FCS files, do you return a flowSet?
+compCSV <- system.file("extdata", "comp.csv", package = "flowHelpers")
 
-# Tests for applyComp: if given a comp matrix in .csv format, do you return a comp object?
-# If given a flowset with an acquisition-defined matrix, can you extract it?
+compStandard <- readr::read_csv(compCSV)
+compStandard <- dplyr::select(compStandard, -X1)
+compStandard <- as.matrix(compStandard)
 
-# Tests for getLinearChannels: if given a length-1 number and a gatingset, do you return the correct vector of channels?
-# If given a vector of linear channels, do you return the correct vector of non-linear channels?
+fs <- readFS(FCSDirectory = path_to_data,
+             pattern = ".fcs$",
+             recursive = FALSE,
+             ncdf = FALSE)
 
-# Tests for applyTransform: if given a gs and linear channels, do you return a transformed gs?
-# note - this one is a little tough, but if you save the output from
-# flowWorkspace::gh_get_transformations to a variable you can at least test that
-# the length of the resulting list is the number of expected non-linear
-# channels.
+test_that("comp matrices are correctly applied from specified source", {
+  expect_equal(applyComp(fs, "acquisition"), compStandard)
+  expect_s4_class(applyComp(fs, compCSV), "compensation")
+})
+
+gs <- flowWorkspace::load_gs(system.file("extdata", "gatingSet.gs", package = "flowHelpers"))
+
+nonLin <- c("FITC-A", "BV421-A", "APC-A", "PE-Cy5-A", "PE-CF594-A")
+
+test_that("each way of specifying channels gives back a length-5 list
+          (the number of non-linear channels in the set)", {
+            expect_equal(getLinearChannels(gs, 6), nonLin)
+            expect_equal(getLinearChannels(gs, c("FSC-A",
+                                                 "FSC-H",
+                                                 "FSC-W",
+                                                 "SSC-A",
+                                                 "SSC-H",
+                                                 "SSC-W",
+                                                 "Time")), nonLin)
+          })
+
+fs <- readFS(path_to_data,
+             pattern = ".fcs$",
+             recursive = FALSE,
+             ncdf = FALSE)
+
+gs <- flowWorkspace::GatingSet(fs)
+
+test_that("applying a transform returns a length-5 list", {
+  expect_equal(length(applyTransform(gs, 6, "biex", 150)), 5)
+  expect_equal(length(applyTransform(gs, 6, "arcsinh", 150)), 5)
+})
