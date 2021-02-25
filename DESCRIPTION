@@ -29,4 +29,5 @@ Imports:
     dplyr,
     stringr,
     ggcyto,
-    tibble
+    tibble,
+    flowGate
