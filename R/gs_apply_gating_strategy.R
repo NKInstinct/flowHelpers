@@ -31,34 +31,36 @@ gs_apply_gating_strategy <- function(gs = NULL,
 
   if(class(gs) == "GatingSet"){
     # Apply each step of the gating strategy to the gs.
-    purrr::pmap(gating_strategy, flowGate::gs_gate_interactive, gs = gs)
+    purrr::pwalk(gating_strategy, flowGate::gs_gate_interactive, gs = gs)
   } else if(is.list(gs)){
     if(mode == "individual"){
-      purrr::map(gs,
-                 ~purrr::pmap(gating_strategy,
+      purrr::walk(gs,
+                 ~purrr::pwalk(gating_strategy,
                               flowGate::gs_gate_interactive,
                               gs = ..1))
     } else if(mode == "reference"){
       gsRef <- gs[[reference_sample]]
       gsNon <- gs[-reference_sample]
 
-      purrr::pmap(gating_strategy, flowGate::gs_gate_interactive, gs = gsRef)
+      purrr::pwalk(gating_strategy, flowGate::gs_gate_interactive, gs = gsRef)
 
       for(i in seq_along(gating_strategy$filterId)){
-        purrr::map(gsNon,
+        purrr::walk(gsNon,
                    ~flowWorkspace::gs_pop_add(..1,
                                               gate = flowWorkspace::gh_pop_get_gate(gsRef[[1]],
                                                                                     gating_strategy$filterId[[i]]),
                                               parent = gating_strategy$subset[[i]]))
       }
 
-      map(gs, recompute)
+      purrr::walk(gs, flowWorkspace::recompute)
     } else{
       stop("'mode' must be 'individual' or 'reference'")
     }
   } else{
     stop("'gs' must be a gatingset, a list of gatingsets, or a directory and pattern suitable to build one of the above")
   }
+
+  return(gs)
 
 }
 
