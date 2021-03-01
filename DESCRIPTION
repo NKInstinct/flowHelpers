@@ -30,4 +30,5 @@ Imports:
     stringr,
     ggcyto,
     tibble,
-    flowGate
+    flowGate,
+    purrr

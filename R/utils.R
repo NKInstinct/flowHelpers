@@ -76,3 +76,78 @@ applyTransform <- function(gs, linearChannels, transform, arcsinh_coeff){
 
   return(transList)
 }
+
+exportHandler <- function(export_opts,
+                          gating_strategy,
+                          parent_directory,
+                          pattern){
+
+  if(is.null(export_opts$exported_gate)){
+    export_opts$exported_gate <- as.character(gating_strategy$filterId[length(gating_strategy$filterId)])
+  }
+
+  if(is.null(export_opts$fs_dir)){
+    export_opts$fs_dir <- parent_directory
+  }
+
+  if(is.null(export_opts$fs_names)){
+    export_opts$fs_names <- pattern
+  }
+
+  if(!is.null(export_opts$gs)){
+    if(is.null(export_opts$gs_dir)){
+      export_opts$gs_dir <- parent_directory
+    }
+
+    if(is.null(export_opts$gs_names)){
+      export_opts$gs_names <- pattern
+    }
+  }
+  return(export_opts)
+}
+
+exportFS <- function(gs, export_opts){
+
+  if(class(gs) == "GatingSet"){
+    fs <- flowWorkspace::gs_pop_get_data(gs,
+                                         y = export_opts$exported_gate,
+                                         inverse.transform = TRUE)
+
+    flowCore::write.flowSet(fs,
+                            outdir = paste(export_opts$fs_dir,
+                                           export_opts$fs_names,
+                                           "/", sep = ""))
+
+    if(!is.null(export_opts$gs)){
+      flowWorkspace::save_gs(gs,
+                             paste(export_opts$gs_dir,
+                                   export_opts$gs_names,
+                                   ".gs", sep = ""))
+    }
+
+  } else if(is.list(gs) & class(gs[[1]]) == "GatingSet"){
+    fs <- purrr::map(gs,
+                     ~flowWorkspace::gs_pop_get_data(..1,
+                                                     y = export_opts$exported_gate,
+                                                     inverse.transform = TRUE))
+    purrr::walk2(fs,
+                 export_opts$fs_names,
+                 ~flowCore::write.flowSet(..1,
+                                          outdir = paste(export_opts$fs_dir,
+                                                         ..2,
+                                                         "/",
+                                                         sep = "")))
+    if(!is.null(export_opts$gs)){
+      purrr::walk2(gs,
+                   export_opts$gs_names,
+                   ~flowWorkspace::save_gs(..1,
+                                           paste(export_opts$gs_dir,
+                                                 ..2,
+                                                 ".gs",
+                                                 sep = "")))
+    }
+
+  } else{
+    stop("fs construction failed: gs is not a GatingSet or List of GatingSets")
+  }
+}
