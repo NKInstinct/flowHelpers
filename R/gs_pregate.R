@@ -1,6 +1,18 @@
-#' Title
+#' Pregate a gs for infinityFlow
+#' 
+#' Pass this function a gatingset or the instructions to build one (still in
+#' development - might not work very well) and it will draw gates and export the
+#' resulting gates as .fcs files for use in infinityFlow.
+#' 
+#' Note that a previous version of this function would allow lists of gs to be
+#' passed directly into it. Unfortunately, this behaviour seemed to break every
+#' time flowWorkspace was updated? Or something else, but in any case it would
+#' regularly stop working and was a bit jank anyway. The better way to do this
+#' is to explicitly pass the list of gatingsets into this function with map (or
+#' more likely, imap and then use the names as the fs_names argument in the
+#' export options).
 #'
-#' @param gs A GatingSet or list of GatingSets. If NULL, must specify a
+#' @param gs A GatingSet. If NULL, must specify a
 #'   parent_directory containing .fcs files and a pattern to find them so
 #'   gs_create can build a gs or list of gs.
 #' @param gating_strategy A gating strategy tibble as required by
@@ -14,12 +26,6 @@
 #' @param pattern A string or list of strings containing patterns to pass to
 #'   gs_create and build a gs or list of gs.
 #' @param ... Additional params to pass to gs_create if desired.
-#' @param mode A string specifying "individual" or "reference". See
-#'   flowGate::gs_apply_gating_strategy for more information. This is only
-#'   required if gs is a list of GatingSets.
-#' @param reference_sample A numeric specifying which gs to gate on in reference
-#'   mode. Only used if gs is a list of GatingSets. See
-#'   flowGate::gs_apply_gating_strategy for more information.
 #' @param export_opts A list allowing fine control of how the resulting gated
 #'   data are exported. Default behaviour will export only an fcs file per
 #'   sample in the parent directory (which must be specified in this case),
@@ -58,8 +64,6 @@ gs_pregate <- function(gs = NULL,
                        parent_directory = NULL,
                        pattern = ".fcs$",
                        ...,
-                       mode = "individual",
-                       reference_sample = 1,
                        export_opts = list()){
 
   # Build gs from pattern if not supplied -------------------------
@@ -85,7 +89,7 @@ gs_pregate <- function(gs = NULL,
   # the gating_strategy simply contain all args you want non-default rather than
   # passing them to purrr later.
 
-  flowGate::gs_apply_gating_strategy(gs, gating_strategy, mode, reference_sample)
+  flowGate::gs_apply_gating_strategy(gs, gating_strategy)
 
 
   # Setup Export Opts -------------------------------------------------------

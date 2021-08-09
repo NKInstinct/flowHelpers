@@ -1,4 +1,12 @@
 #' Prepare the infinity setup Rds
+#' 
+#' Run this command after you have pregated the infinity files to make an
+#' infinity setup tibble that you can then pmap into infinityFlow so that each
+#' sample gets correctly imputed. Note that for now, this version is insisting
+#' on an intermediary results folder - although the bug where not specifying
+#' intermediaries appended the files has been resolved, it's safest to just run
+#' this with the intermediaries saved and then delete them later if you don't
+#' need them.
 #'
 #' @param pregated_dir A path to the directory that contains your pregated .fcs
 #'   files for infinity imputation.
@@ -15,24 +23,30 @@
 #' @param create_output_dir Boolean. Should an infinityOutput directory be
 #'   created and populated with the same subfolder structure as the pregated
 #'   directory?
+#' @param create_intermed_dir Boolean. Should an infinityIntermed directory be
+#'   created and populated with the same subfolder structure as the pregated
+#'   directory?
 #'
 #' @return an infinitySetup tibble that should be saved to a .Rds and then fed
 #'   into an imputation pipeline as a set of args through pwalk.
 #' @examples
-#' infinitySetup <- infinity_setup(pregated_dir = system.file("extdata",
-#'                                                            "pregated",
-#'                                                            package = "flowHelpers"),
-#'                                 infinity_targets = c("Marker1",
-#'                                                      "Marker2"),
-#'                                 infinity_isotypes = "FMO",
-#'                                 create_output_dir = FALSE)
-#'
+#' # Note - commented because R-CMD-BUILD can't create the output folders in a
+#' # safe way.
+#' # infinitySetup <- infinity_setup(pregated_dir = system.file("extdata",
+#' #                                                     "pregated",
+#' #                                                     package = "flowHelpers"),
+#' #                                 infinity_targets = c("Marker1",
+#' #                                                      "Marker2"),
+#' #                                 infinity_isotypes = "FMO",
+#' #                                 create_output_dir = FALSE,
+#' #                                 create_intermed_dir = FALSE)
 #'
 #' @export
 infinity_setup <- function(pregated_dir,
                            infinity_targets,
                            infinity_isotypes,
-                           create_output_dir = TRUE){
+                           create_output_dir = TRUE,
+                           create_intermed_dir = TRUE){
 
   sampleList <- list.files(pregated_dir, full.names = TRUE)
 
@@ -62,6 +76,15 @@ infinity_setup <- function(pregated_dir,
                            ..1,
                            sep = "")))
   }
+  if(create_intermed_dir == TRUE){
+    dir.create(paste(dirname(pregated_dir), "/infinityIntermed", sep = ""))
+    
+    purrr::walk(list.files(pregated_dir,
+                           full.names = FALSE),
+                ~dir.create(paste(dirname(pregated_dir), "/infinityIntermed/",
+                                  ..1,
+                                  sep = "")))
+  }
 
   infinitySetup <- tibble::tibble(path_to_fcs = list.files(pregated_dir,
                                                    full.names = TRUE),
@@ -69,6 +92,10 @@ infinity_setup <- function(pregated_dir,
                                                             "/infinityOutput",
                                                             sep = ""),
                                                       full.names = TRUE),
+                          path_to_intermediary_results = list.files(paste(dirname(pregated_dir),
+                                                                          "/infinityIntermed",
+                                                                          sep = ""), 
+                                                                    full.names = TRUE),
                           annotation = targets,
                           isotype = isotypes)
 
@@ -76,6 +103,9 @@ infinity_setup <- function(pregated_dir,
 
   return(infinitySetup)
 }
+
+# This one needs some work - probably pop it out into its own function to
+# document it better.
 
 infinity_backbone <- function(fcs_directory, pattern, recursive){
   fcsFiles <- list.files(fcs_directory,
@@ -85,8 +115,8 @@ infinity_backbone <- function(fcs_directory, pattern, recursive){
 
   fs <- flowCore::read.flowSet(fcsFiles)
 
-  backbone <- tibble::tibble(name = colnames(fs)) %>%
-    dplyr::left_join(as_tibble(markernames(fs), rownames = "name")) %>%
+  backbone <- tibble::tibble(name = colnames(fs)) |>
+    dplyr::left_join(tibble::as_tibble(flowCore::markernames(fs), rownames = "name")) |>
     dplyr::rename(desc = "value")
 
   message("IMPORTANT: \n

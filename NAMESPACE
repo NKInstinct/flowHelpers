@@ -2,3 +2,7 @@
 
 export(gs_create)
 export(gs_pregate)
+export(infinity_renameOutputs)
+export(infinity_setup)
+importFrom(stringr,str_detect)
+importFrom(stringr,str_remove_all)

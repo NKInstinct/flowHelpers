@@ -2,7 +2,7 @@
 % Please edit documentation in R/gs_pregate.R
 \name{gs_pregate}
 \alias{gs_pregate}
-\title{Title}
+\title{Pregate a gs for infinityFlow}
 \usage{
 gs_pregate(
   gs = NULL,
@@ -10,13 +10,11 @@ gs_pregate(
   parent_directory = NULL,
   pattern = ".fcs$",
   ...,
-  mode = "individual",
-  reference_sample = 1,
   export_opts = list()
 )
 }
 \arguments{
-\item{gs}{A GatingSet or list of GatingSets. If NULL, must specify a
+\item{gs}{A GatingSet. If NULL, must specify a
 parent_directory containing .fcs files and a pattern to find them so
 gs_create can build a gs or list of gs.}
 
@@ -34,14 +32,6 @@ to build a gs from .fcs files contained within.}
 gs_create and build a gs or list of gs.}
 
 \item{...}{Additional params to pass to gs_create if desired.}
-
-\item{mode}{A string specifying "individual" or "reference". See
-flowGate::gs_apply_gating_strategy for more information. This is only
-required if gs is a list of GatingSets.}
-
-\item{reference_sample}{A numeric specifying which gs to gate on in reference
-mode. Only used if gs is a list of GatingSets. See
-flowGate::gs_apply_gating_strategy for more information.}
 
 \item{export_opts}{A list allowing fine control of how the resulting gated
 data are exported. Default behaviour will export only an fcs file per
@@ -64,7 +54,18 @@ as .fcs files according to the export options, and optionally the GatingSet
 object for further use.
 }
 \description{
-Title
+Pass this function a gatingset or the instructions to build one (still in
+development - might not work very well) and it will draw gates and export the
+resulting gates as .fcs files for use in infinityFlow.
+}
+\details{
+Note that a previous version of this function would allow lists of gs to be
+passed directly into it. Unfortunately, this behaviour seemed to break every
+time flowWorkspace was updated? Or something else, but in any case it would
+regularly stop working and was a bit jank anyway. The better way to do this
+is to explicitly pass the list of gatingsets into this function with map (or
+more likely, imap and then use the names as the fs_names argument in the
+export options).
 }
 \examples{
 if(interactive()){
