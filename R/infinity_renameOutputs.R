@@ -21,8 +21,13 @@
 #'   default (NULL) pastes no string. Adding a prefix is useful if you are going
 #'   to be combining several batches of samples with similar naming strategies
 #'   (WT1, WT2, etc).
+#' @param trialRun Boolean. If true, this function will return a list of old and
+#'   new filepaths but won't actually change them. You can either then run
+#'   file.rename yourself using the old and new paths, or rerun with trialRun =
+#'   FALSE to actually rename the files.
 #' @return Nothing - this modifies the filenames in place, so be careful! It's
-#'   hard to undo this!
+#'   hard to undo this, hence the trialRun option to make sure it's working as
+#'   intended before hitting go.
 #' @importFrom stringr str_detect str_remove_all
 #' 
 #' 
@@ -30,7 +35,8 @@
 infinity_renameOutputs <- function(parentDir, 
                                    pattern = "\\.fcs$", 
                                    concat_tag_to_remove = "FCS/concatenated",
-                                   prefix = NULL){
+                                   prefix = NULL,
+                                   trialRun = TRUE){
   
   if(!stringr::str_detect(parentDir, "/$")){
     parentDir <- paste(parentDir, "/", sep = "")
@@ -56,7 +62,13 @@ infinity_renameOutputs <- function(parentDir,
     sample_names <- paste(prefix, sample_names, sep = "")
   }
   
-  new_files <- paste(parent_paths, sample_names, sep = "")
-  
-  file.rename(old_files, new_files)
+  new_files <- paste(parent_paths, sample_names, sep = "/")
+  if(trialRun == TRUE){
+    results <- list("Old paths" = old_files,
+                    "New paths" = new_files)
+    
+    return(results)
+  } else{
+    file.rename(old_files, new_files)
+  }
 }

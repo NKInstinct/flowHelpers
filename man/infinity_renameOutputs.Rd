@@ -8,7 +8,8 @@ infinity_renameOutputs(
   parentDir,
   pattern = "\\\\.fcs$",
   concat_tag_to_remove = "FCS/concatenated",
-  prefix = NULL
+  prefix = NULL,
+  trialRun = TRUE
 )
 }
 \arguments{
@@ -30,10 +31,16 @@ Pasted directly on, so if you want a specific separater, add it here. The
 default (NULL) pastes no string. Adding a prefix is useful if you are going
 to be combining several batches of samples with similar naming strategies
 (WT1, WT2, etc).}
+
+\item{trialRun}{Boolean. If true, this function will return a list of old and
+new filepaths but won't actually change them. You can either then run
+file.rename yourself using the old and new paths, or rerun with trialRun =
+FALSE to actually rename the files.}
 }
 \value{
 Nothing - this modifies the filenames in place, so be careful! It's
-hard to undo this!
+hard to undo this, hence the trialRun option to make sure it's working as
+intended before hitting go.
 }
 \description{
 Annoyingly, all infinityFlow concatenated files are output as 'concat.fcs',
