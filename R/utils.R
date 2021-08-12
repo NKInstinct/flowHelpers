@@ -151,3 +151,20 @@ exportFS <- function(gs, export_opts){
     stop("fs construction failed: gs is not a GatingSet or List of GatingSets")
   }
 }
+
+# Add metadata interactively ---------------------------------------------------
+
+addMetadata <- function(df){
+  data <- dplyr::distinct(df) |>
+    as.data.frame()
+  
+  # Very weird error here where it works fine in debug mode but not in normal. Something about calling stopApp halts the whole function, not just the shiny app. Might not be solvable, so might need to split this whole thing into two pieces...
+  result <- DataEditR::data_edit(x = data, 
+                                 col_readonly = "sample_id", 
+                                 col_edit = TRUE, 
+                                 row_edit = FALSE,
+                                 hide = FALSE)
+    dplyr::right_join(df, by = "sample_id")
+  
+  return(result)
+}
