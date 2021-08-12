@@ -31,4 +31,8 @@ Imports:
     ggcyto,
     tibble,
     flowGate,
-    purrr
+    purrr,
+    CATALYST,
+    DataEditR,
+    Seurat,
+    SeuratObject

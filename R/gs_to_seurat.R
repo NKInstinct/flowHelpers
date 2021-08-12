@@ -13,6 +13,11 @@
 #' object as a separate metadata entry with the colname as a name - this can be
 #' useful for downstream regression and labeling.
 #' 
+#' @param gs The GatingSet to take data from
+#' @param node Character vector specifying a (nonredundant) node in the
+#'   GatingSet to use for data extraction. Defaults to "root" (all events in
+#'   GatingSet).
+#' 
 #' @export
 gs_to_seurat <- function(gs,
                         node = "root"){
