@@ -35,4 +35,10 @@ Imports:
     CATALYST,
     DataEditR,
     Seurat,
-    SeuratObject
+    SeuratObject,
+    magrittr,
+    Biobase,
+    SingleCellExperiment,
+    igraph,
+    scater,
+    scran
