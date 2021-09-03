@@ -19,13 +19,18 @@
 #'   or not. This is the whole point of turning flow data into an SCE, but it
 #'   can be computationally intense for even moderately sized experiments so you
 #'   need to opt-in.
+#' @param feature_exclusion A regular expression specifying which rownames to
+#'   exclude from building the UMAP. Defaults to NULL (no exclusions), but you
+#'   likely want to exclude Time, FSC/SSC, and Viability at least since these
+#'   should be pre-gated.
 #' @importFrom magrittr "%$%"
 #'   
 #' @export
 gs_to_sce <- function(gs, 
                       node = "root", 
                       condition = Biobase::sampleNames(gs),
-                      do_UMAP = FALSE){
+                      do_UMAP = FALSE,
+                      feature_exclusion = NULL){
   fs <- flowWorkspace::gs_pop_get_data(gs, 
                                        y = node, 
                                        inverse.transform = TRUE) |>
@@ -46,6 +51,13 @@ gs_to_sce <- function(gs,
     scater::runPCA(exprs_values = "exprs")
   
   if(do_UMAP == TRUE){
+    
+    if(is.null(feature_exclusion)){
+      features <- rownames(sce)
+    } else{
+      features <- rownames(sce)[!str_detect(rownames(sce), feature_exclusion)]
+    }
+    
     SingleCellExperiment::colLabels(sce) <- sce |>
       scran::buildSNNGraph(use.dimred="PCA") |>
       igraph::cluster_walktrap() %$%
@@ -53,7 +65,9 @@ gs_to_sce <- function(gs,
       as.factor()
     
     sce <- sce |>
-      scater::runUMAP(ncomponents = 2, exprs_values = "exprs")
+      scater::runUMAP(ncomponents = 2, 
+                      exprs_values = "exprs",
+                      subset_row = features)
   }
   
   return(sce)

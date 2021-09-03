@@ -8,7 +8,8 @@ gs_to_sce(
   gs,
   node = "root",
   condition = Biobase::sampleNames(gs),
-  do_UMAP = FALSE
+  do_UMAP = FALSE,
+  feature_exclusion = NULL
 )
 }
 \arguments{
@@ -27,6 +28,11 @@ should probably specify something here!}
 or not. This is the whole point of turning flow data into an SCE, but it
 can be computationally intense for even moderately sized experiments so you
 need to opt-in.}
+
+\item{feature_exclusion}{A regular expression specifying which rownames to
+exclude from building the UMAP. Defaults to NULL (no exclusions), but you
+likely want to exclude Time, FSC/SSC, and Viability at least since these
+should be pre-gated.}
 }
 \description{
 This function is very similar to gs_to_Seurat, but rather than shoehorning
