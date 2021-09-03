@@ -49,7 +49,7 @@ gs_to_sce <- function(gs,
     SingleCellExperiment::colLabels(sce) <- sce |>
       scran::buildSNNGraph(use.dimred="PCA") |>
       igraph::cluster_walktrap() %$%
-      igraph::membership() |>
+      membership |>
       as.factor()
     
     sce <- sce |>
