@@ -17,7 +17,9 @@
 #' @param comp Either "acquisition" or the filepath to a comp matrix saved as a
 #'   .csv file. Specify FALSE if you want no comp applied.
 #' @param transform Either "biex" or "arcsinh" to apply the appropriate
-#'   transform function to all channels not defined as linear (see below).
+#'   transform function to all channels not defined as linear (see below). Keep
+#'   FALSE to apply no transformation (default, since I'm starting to move to
+#'   scale_._transform instead of raw data transforms)
 #' @param arcsinh_coeff passed to the arcsinh function - defaults to 150, which
 #'   is considered appropriate for fluorescent cytometry data (use coefficient 1
 #'   if you have cytof data instead).
@@ -45,9 +47,9 @@
 gs_create <-  function(FCSDirectory,
                        pattern = ".fcs$",
                        recursive = FALSE,
-                       ncdf = TRUE,
+                       ncdf = FALSE,
                        comp = "acquisition",
-                       transform = "biex",
+                       transform = FALSE,
                        arcsinh_coeff = 150,
                        linearChannels = 2){
 
