@@ -8,6 +8,7 @@ gs_create(
   FCSDirectory,
   pattern = ".fcs$",
   autoqc = FALSE,
+  qcreport = FALSE,
   recursive = FALSE,
   ncdf = FALSE,
   comp = "acquisition",
@@ -22,8 +23,12 @@ gs_create(
 \item{pattern}{a string/regexp that selects the files to read in. Defaults to
 all fcs files with ".fcs$".}
 
-\item{autoqc}{Boolean specifying whether to run flowAI's auto QC pipeline on
-the generated fs before converting to gs. Defaults to FALSE.}
+\item{autoqc}{Pass one of the remove_from strings for flowAI to run automatic
+qc with that string as the remove_from value ("all", "FR_FS", "FM", etc).
+Defaults to FALSE (no qc).}
+
+\item{qcreport}{Boolean whether to generate an html and mini report in the
+current wd for autoqc. Defaults to FALSE.}
 
 \item{recursive}{Boolean specifying whether the fcs files should be searched
 for within FCSDirectory recursively (i.e. are there subfolders?).}
