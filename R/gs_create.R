@@ -10,6 +10,8 @@
 #' @param FCSDirectory The parent directory containing the fcs files.
 #' @param pattern a string/regexp that selects the files to read in. Defaults to
 #'   all fcs files with ".fcs$".
+#' @param autoqc Boolean specifying whether to run flowAI's auto QC pipeline on
+#'   the generated fs before converting to gs. Defaults to FALSE.
 #' @param recursive Boolean specifying whether the fcs files should be searched
 #'   for within FCSDirectory recursively (i.e. are there subfolders?).
 #' @param ncdf Boolean specifying whether the fcs files should be read in as
@@ -46,6 +48,7 @@
 #' @export
 gs_create <-  function(FCSDirectory,
                        pattern = ".fcs$",
+                       autoqc = FALSE,
                        recursive = FALSE,
                        ncdf = FALSE,
                        comp = "acquisition",
@@ -56,6 +59,11 @@ gs_create <-  function(FCSDirectory,
   # Read files from directory ---------------------------------------------
 
   fs <- readFS(FCSDirectory, pattern, recursive, ncdf)
+  
+  # Apply flowAI QC -------------------------------------------------------
+  if(autoqc == TRUE){
+    fs <- flowAI::flow_auto_qc(fs)
+  }
 
   gs <- flowWorkspace::GatingSet(fs)
 

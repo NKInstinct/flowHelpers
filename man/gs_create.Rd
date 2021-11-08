@@ -7,10 +7,11 @@
 gs_create(
   FCSDirectory,
   pattern = ".fcs$",
+  autoqc = FALSE,
   recursive = FALSE,
-  ncdf = TRUE,
+  ncdf = FALSE,
   comp = "acquisition",
-  transform = "biex",
+  transform = FALSE,
   arcsinh_coeff = 150,
   linearChannels = 2
 )
@@ -20,6 +21,9 @@ gs_create(
 
 \item{pattern}{a string/regexp that selects the files to read in. Defaults to
 all fcs files with ".fcs$".}
+
+\item{autoqc}{Boolean specifying whether to run flowAI's auto QC pipeline on
+the generated fs before converting to gs. Defaults to FALSE.}
 
 \item{recursive}{Boolean specifying whether the fcs files should be searched
 for within FCSDirectory recursively (i.e. are there subfolders?).}
@@ -31,7 +35,9 @@ ncdf files.}
 .csv file. Specify FALSE if you want no comp applied.}
 
 \item{transform}{Either "biex" or "arcsinh" to apply the appropriate
-transform function to all channels not defined as linear (see below).}
+transform function to all channels not defined as linear (see below). Keep
+FALSE to apply no transformation (default, since I'm starting to move to
+scale_._transform instead of raw data transforms)}
 
 \item{arcsinh_coeff}{passed to the arcsinh function - defaults to 150, which
 is considered appropriate for fluorescent cytometry data (use coefficient 1

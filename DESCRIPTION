@@ -41,4 +41,5 @@ Imports:
     SingleCellExperiment,
     igraph,
     scater,
-    scran
+    scran,
+    flowAI
