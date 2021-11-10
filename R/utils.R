@@ -111,7 +111,7 @@ exportFS <- function(gs, export_opts){
   if(class(gs) == "GatingSet"){
     fs <- flowWorkspace::gs_pop_get_data(gs,
                                          y = export_opts$exported_gate,
-                                         inverse.transform = TRUE)
+                                         inverse.transform = FALSE)
 
     flowCore::write.flowSet(fs,
                             outdir = paste(export_opts$fs_dir,
@@ -129,7 +129,7 @@ exportFS <- function(gs, export_opts){
     fs <- purrr::map(gs,
                      ~flowWorkspace::gs_pop_get_data(..1,
                                                      y = export_opts$exported_gate,
-                                                     inverse.transform = TRUE))
+                                                     inverse.transform = FALSE))
     purrr::walk2(fs,
                  export_opts$fs_names,
                  ~flowCore::write.flowSet(..1,
