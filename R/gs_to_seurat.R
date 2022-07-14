@@ -17,14 +17,19 @@
 #' @param node Character vector specifying a (nonredundant) node in the
 #'   GatingSet to use for data extraction. Defaults to "root" (all events in
 #'   GatingSet).
+#' @param invert Boolean specifying whether transformations should be inverted.
+#'   Defaults to FALSE since the default gs_create also doesn't do any
+#'   transformations, but if your gs has transformed data, you should invert it
+#'   here before proceeding.
 #' 
 #' @export
 gs_to_seurat <- function(gs,
-                        node = "root"){
+                        node = "root",
+                        invert = FALSE){
 # Prepare SCE Inputs -----------------------------------------------------------
   message("Converting GatingSet to Seurat")
   
-  fs <- flowWorkspace::gs_pop_get_data(gs, y = node, inverse.transform = TRUE)
+  fs <- flowWorkspace::gs_pop_get_data(gs, y = node, inverse.transform = invert)
   panel <- dplyr::left_join(
     tibble::enframe(flowCore::colnames(fs), 
                     name = NULL, 
@@ -78,8 +83,8 @@ gs_to_seurat <- function(gs,
   meta <- dplyr::left_join(meta, metaEdit, by = "sample_id")
   
   # Should return a dataframe with any metadata columns added in
-  if(length(meta) > 1){
-    for(i in 2:length(meta)){
+  if(ncol(meta) > 1){
+    for(i in 2:ncol(meta)){
       seurat <- SeuratObject::AddMetaData(seurat,
                                           meta[[i]],
                                           col.name = colnames(meta[i]))
