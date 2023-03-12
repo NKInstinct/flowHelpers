@@ -4,7 +4,7 @@
 \alias{gs_to_seurat}
 \title{Convert GatingSet to Seurat and add metadata.}
 \usage{
-gs_to_seurat(gs, node = "root")
+gs_to_seurat(gs, node = "root", invert = FALSE, edit_metadata = FALSE)
 }
 \arguments{
 \item{gs}{The GatingSet to take data from}
@@ -12,6 +12,17 @@ gs_to_seurat(gs, node = "root")
 \item{node}{Character vector specifying a (nonredundant) node in the
 GatingSet to use for data extraction. Defaults to "root" (all events in
 GatingSet).}
+
+\item{invert}{Boolean specifying whether transformations should be inverted.
+Defaults to FALSE since the default gs_create also doesn't do any
+transformations, but if your gs has transformed data, you should invert it
+here before proceeding.}
+
+\item{edit_metadata}{Boolean specifying whether an interactive
+DataEditR-powered window should be invoked to add metadata to the Seurat
+object directly. Convenient but unstable due to rhandsontable dependency
+weirdness, so FALSE by default. Set to true if you like debugging more than
+you like S4 object interaction.}
 }
 \description{
 This function outputs a Seurat object based on a provided GatingSet and

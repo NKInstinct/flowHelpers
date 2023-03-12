@@ -21,11 +21,17 @@
 #'   Defaults to FALSE since the default gs_create also doesn't do any
 #'   transformations, but if your gs has transformed data, you should invert it
 #'   here before proceeding.
+#' @param edit_metadata Boolean specifying whether an interactive
+#'   DataEditR-powered window should be invoked to add metadata to the Seurat
+#'   object directly. Convenient but unstable due to rhandsontable dependency
+#'   weirdness, so FALSE by default. Set to true if you like debugging more than
+#'   you like S4 object interaction.
 #' 
 #' @export
 gs_to_seurat <- function(gs,
                         node = "root",
-                        invert = FALSE){
+                        invert = FALSE,
+                        edit_metadata = FALSE){
 # Prepare SCE Inputs -----------------------------------------------------------
   message("Converting GatingSet to Seurat")
   
@@ -64,32 +70,35 @@ gs_to_seurat <- function(gs,
 # Convert SCE to Seurat --------------------------------------------------------
   seurat <- Seurat::as.Seurat(sce, counts = "counts", data = "exprs")
   
-  message("Requesting metadata")
-  
 # Fix Metadata -----------------------------------------------------------------
-  meta <- seurat@meta.data$sample_id |>
-    tibble::enframe(name = NULL, value = "sample_id")
-  # Need to make a second df with the sample id and the added metadata and then
-  # left_join them I think
-  
-  metaDisplay <- dplyr::distinct(meta) |>
-    as.data.frame()
-  
-  metaEdit <- DataEditR::data_edit(x = metaDisplay, 
-                                      col_readonly = "sample_id", 
-                                      col_edit = TRUE, 
-                                      row_edit = FALSE)
-
-  meta <- dplyr::left_join(meta, metaEdit, by = "sample_id")
-  
-  # Should return a dataframe with any metadata columns added in
-  if(ncol(meta) > 1){
-    for(i in 2:ncol(meta)){
-      seurat <- SeuratObject::AddMetaData(seurat,
-                                          meta[[i]],
-                                          col.name = colnames(meta[i]))
+  if(edit_metadata){
+    message("Requesting metadata")
+    
+    meta <- seurat@meta.data$sample_id |>
+      tibble::enframe(name = NULL, value = "sample_id")
+    # Need to make a second df with the sample id and the added metadata and then
+    # left_join them I think
+    
+    metaDisplay <- dplyr::distinct(meta) |>
+      as.data.frame()
+    
+    metaEdit <- DataEditR::data_edit(x = metaDisplay, 
+                                     col_readonly = "sample_id", 
+                                     col_edit = TRUE, 
+                                     row_edit = FALSE)
+    
+    meta <- dplyr::left_join(meta, metaEdit, by = "sample_id")
+    
+    # Should return a dataframe with any metadata columns added in
+    if(ncol(meta) > 1){
+      for(i in 2:ncol(meta)){
+        seurat <- SeuratObject::AddMetaData(seurat,
+                                            meta[[i]],
+                                            col.name = colnames(meta[i]))
+      }
     }
   }
+  
   
   message("Seurat Produced - please proceed with scaling (ScaleData, with 
           optional variable regression), PCA (runPCA), Elbow Plot to determine 
